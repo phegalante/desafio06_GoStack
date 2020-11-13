@@ -21,7 +21,9 @@ class Transaction {
   @Column()
   type: 'income' | 'outcome';
 
+  @Column()
   value: number;
+
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'category_id' })
   category_id: string;

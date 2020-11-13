@@ -16,9 +16,11 @@ class CreateTransactionService {
     const transactionRepository = getCustomRepository(TransactionsRepository);
     const categoryRepository = getRepository(Category);
     const { title, value, type, category } = request;
+
     const findCategoryByName = await categoryRepository.findOne({
       where: { title: category },
     });
+
     let category_id;
 
     if (findCategoryByName) {
@@ -27,13 +29,14 @@ class CreateTransactionService {
       const createdCategory = categoryRepository.create({
         title: category,
       });
+      await categoryRepository.save(createdCategory);
       category_id = createdCategory.id;
     }
 
-    const transaction = await transactionRepository.create({
+    const transaction = transactionRepository.create({
       title,
-      value,
       type,
+      value,
       category_id,
     });
 
@@ -42,6 +45,8 @@ class CreateTransactionService {
     if (transaction.type === 'outcome' && balance.total < transaction.value) {
       throw new AppError('Você não tem saldo suficiente para essa transação!');
     }
+
+    await transactionRepository.save(transaction);
 
     return transaction;
   }
